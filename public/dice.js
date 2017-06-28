@@ -1,11 +1,24 @@
 var me = -1;
+var socket;
 
 window.onload = function(){
-	var socket;
-	socket = io.connect('http://localhost:3000');	
+	socket = io.connect('http://localhost:3000');
+	socket.on('starting',function(data){
+		console.log('now starting with ' + data + ' players');
+	});
+	socket.on('roll', function(data){
+		console.log(data);
+	});	
+
+}
+
+function startup(data){
+	console.log('now starting with ' + data + ' players');
 }
 
 
+
+/*
 
 class player{
 	constructor(name){
@@ -65,18 +78,9 @@ class game{
 	}
 }
 
-function bettingHelper(){
-	players.forEach(function(p){
-		if(!g.call){
-			var bid = p.makeBid();
-			if(bid[0] == 'call')
-				g.call = true;
-		}
-	});
-}
+*/
 
-
-
+/*
 var player1 = new player('logan');
 var player2 = new player('luke');
 var players = [player1, player2];
@@ -85,7 +89,7 @@ g.rollDice();
 console.log(player1.currentRoll);
 console.log(player2.currentRoll);
 //g.startBetting();
-
+*/
 
 
 function newPlayer(){
@@ -93,7 +97,8 @@ function newPlayer(){
 	if(x == '')
 		alert('input a name');
 	else{
-		me = new player(x)
+		socket.emit('newPlayer', x)
+		me = x;
 	}
 }
 
@@ -101,9 +106,10 @@ function readyUp(){
 	if(me == -1)
 		alert('Pick a name first');
 	else{
-		me.ready = true;
-		players.push(me);
-		players.forEach(function(p))
+		socket.emit('readyUp', me) //have to check and make sure 'me' isn't -1 
+		//me.ready = true;
+		//players.push(me);
+		//players.forEach(function(p))
 	}
 }
 
