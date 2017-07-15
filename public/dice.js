@@ -1,103 +1,117 @@
 var me = -1;
 var socket;
+var currBid;
+var diceCount = 0;
+
+
+var dicePictures = {
+	1: 'dice-pics/onedie.png',
+	2: 'dice-pics/twodie.png',
+	3: 'dice-pics/threedie.png',
+	4: 'dice-pics/fourdie.png',
+	5: 'dice-pics/fivedie.png',
+	6: 'dice-pics/sixdie.png',
+}
+
+
 
 window.onload = function(){
 	socket = io.connect('http://localhost:3000');
 	socket.on('starting',function(data){
+		diceCount = 5;
 		console.log('now starting with ' + data + ' players');
+		document.getElementById("numDice").innerHTML = 'YOU HAVE 5 DICE';
+		document.getElementById("namePrompt").style.visibility = "hidden";
+
 	});
+
 	socket.on('roll', function(data){
+		for(var i = 0; i<5; i++){
+			document.getElementById('die'+(i+1).toString()).src = '';
+		}
+		var counter = 0;
+		data.forEach(function(die){
+			counter++;
+			document.getElementById('die'+counter.toString()).src = dicePictures[die];
+		})
 		console.log(data);
 	});	
 
+	socket.on('promptFirstBid', promptFirstBid);
+	socket.on('promptNextBid', promptNextBid);
+	socket.on('loseTurn', loseTurn);
+	socket.on('someoneLossed', someoneLossed);
+	socket.on('gameOver', gameOver);
+
+	document.getElementById("waiting").style.visibility = "visible";
+	document.getElementById("bidPrompt").style.visibility = "hidden";
 }
 
 function startup(data){
-	console.log('now starting with ' + data + ' players');
+	
+
+
 }
 
 
-
-/*
-
-class player{
-	constructor(name){
-		this.name = name;
-		this.ready = false;
-		this.numDice = 5;
-		this.currentRoll = [];
-		this.currentBid = [];
-	}
-    rollDice(){
-    	var roll = []
-    	for(var i = 0; i<this.numDice; i++){
-    		roll.push(Math.floor((Math.random()*6)+1))
-    	}
-    	this.currentRoll = roll;
-    }
-    makeBid(prevQuantity=0, prevValue=0){
-    	console.log(prevQuantity, prevValue);
-    	var quantity = window.prompt("Enter a quantity or call bullshit");
-    	if(quantity == 'call')
-    		return ['call'];
-    	var value = window.prompt("Enter a value");
-    	return [quantity,value];
-
-    }
+function promptFirstBid(data){
+	currBid = [0,0];
+	document.getElementById("waiting").style.visibility = "hidden";
+	document.getElementById("bidPrompt").style.visibility = "visible";
+	
 }
 
-class game{
-	constructor(numPlayers){
-		this.numPlayers = numPlayers;
-		this.numDice = numPlayers * 5;
-		this.gameOver = false;
-		this.call = false;
-	}
-
-	rollDice(){
-		players.forEach(function(p){
-			p.rollDice();
-		});
-	}
-	isGameOver(){
-		return this.gameOver ? true : false;
-	}
-	startBetting(){
-		var self = this;
-		var prevValue = 0;
-		var prevQuantity = 0;
-		while(!this.call){
-			players.forEach(function(p){
-				if(!self.call){
-					var bid = p.makeBid();
-					if(bid[0] == 'call')
-						self.call = true;
-				}
-			});
-		}
-	}
+function promptNextBid(data){
+	currBid = data;
+	document.getElementById("waiting").style.visibility = "hidden";
+	document.getElementById("currentBid").innerHTML = data[0] + '' + data[1] + ' \'s';
+	document.getElementById("bidPrompt").style.visibility = "visible";
 }
 
-*/
+//todo: handle illegal bids and calling
+function checkBid(){
+	var quantity = document.getElementById("quantity").value;
+	var die = document.getElementById("die").value;
+	if(quantity == 'call'){
+		sendBid(quantity, die);
+	}
+	else if(quantity>currBid[0]){
+		sendBid(quantity, die);
+	}
+	else if(quantity == currBid[0] && die > currBid[1]){
+		sendBid(quantity, die);
+	}
+	else
+		alert('illegal bid');
+}
 
-/*
-var player1 = new player('logan');
-var player2 = new player('luke');
-var players = [player1, player2];
-var g = new game(players.length);
-g.rollDice();
-console.log(player1.currentRoll);
-console.log(player2.currentRoll);
-//g.startBetting();
-*/
+function sendBid(quantity, die){
+	socket.emit('returnBid', [quantity, die]);
+	document.getElementById("bidPrompt").style.visibility = "hidden";
+	document.getElementById("waiting").style.visibility = "visible";
+}
+
+function loseTurn(data){
+	console.log('lose 1 die')
+	diceCount--;
+	document.getElementById("numDice").innerHTML = "YOU HAVE " + diceCount + " DICE";
+}
+
+function someoneLossed(data){
+	console.log(data + ' lossed the round');
+}
+
+function gameOver(data){
+	console.log(data + 'WON');
+}
 
 
 function newPlayer(){
-	x = document.getElementById('name').value;
+	var x = document.getElementById('name').value;
 	if(x == '')
 		alert('input a name');
 	else{
-		socket.emit('newPlayer', x)
+		socket.emit('newPlayer', x);
 		me = x;
 	}
 }
@@ -106,18 +120,6 @@ function readyUp(){
 	if(me == -1)
 		alert('Pick a name first');
 	else{
-		socket.emit('readyUp', me) //have to check and make sure 'me' isn't -1 
-		//me.ready = true;
-		//players.push(me);
-		//players.forEach(function(p))
+		socket.emit('readyUp', me);
 	}
 }
-
-
-
-
-/*
-players.forEach(function(player){
-	player.rollDice();
-})
-*/

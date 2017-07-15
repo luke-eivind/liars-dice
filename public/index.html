@@ -5,15 +5,36 @@
     <title>Liar's Dice</title>
     <script src="dice.js" type="text/javascript"></script>
     <script src ="https://cdn.socket.io/socket.io-1.7.3.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="style.css">
+
 
   </head>
   <body>
-  	<form>
+    <h1>Liar's Dice</h1>
+  	<form id="namePrompt">
   		Name:<br>
   		<input type="text" id="name"><br>
   		<button type="button" onclick="newPlayer()">Submit</button>
-	</form>
-	<button type="button" id="ready" onclick="readyUp()">Ready</button>
+      <button type="button" id="ready" onclick="readyUp()">Ready</button>
+	  </form>
+	  
+
+    <form id="bidPrompt">
+      <p id="currentBid"></p>
+      <p>Make a Bid</p>
+      <input type="text" id="quantity"><br>
+      <input type="text" id="die"><br>
+      <button type="button" id="submitBid" onclick="checkBid()">Submit</button>
+    </form>
+    <p id="waiting">Waiting...</p>
+    <p id="numDice"></p>
+    <img class="dice" id="die1" src="">
+    <img class="dice" id="die2" src="">
+    <img class="dice" id="die3" src="">
+    <img class="dice" id="die4" src="">
+    <img class="dice" id="die5" src="">
+
+
 
 
   </body>

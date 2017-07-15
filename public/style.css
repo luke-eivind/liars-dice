@@ -1,0 +1,29 @@
+body {
+	background-color: lightblue;
+}
+
+.dice {
+	height: 40px;
+	width: 40px;
+}
+
+
+@font-face {
+    font-family: juice;
+    src: url(fonts/orange_juice/orangejuice.ttf);
+}
+
+p {
+	font-family: juice;
+	font-size: 30px;
+}
+
+#namePrompt {
+	font-family: juice;
+	font-size: 30px;
+}
+
+h1 {
+	font-family: juice;
+	font-size: 50px;
+}
