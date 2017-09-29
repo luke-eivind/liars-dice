@@ -27,7 +27,7 @@ window.onload = function(){
 
 	socket.on('roll', function(data){
 		for(var i = 0; i<5; i++){
-			document.getElementById('die'+(i+1).toString()).src = '';
+			document.getElementById('die'+(i+1).toString()).src = '';ih
 		}
 		var counter = 0;
 		data.forEach(function(die){
